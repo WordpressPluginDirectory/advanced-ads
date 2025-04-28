@@ -66,6 +66,7 @@ class Ad_Repository {
 			$ad->set_id( $id );
 
 			$this->update_post_meta( $ad );
+			$this->update_post_term( $ad );
 			$this->update_version( $ad );
 
 			$ad->apply_changes();
@@ -163,6 +164,7 @@ class Ad_Repository {
 		}
 
 		$this->update_post_meta( $ad );
+		$this->update_post_term( $ad );
 
 		$ad->apply_changes();
 	}
@@ -386,19 +388,8 @@ class Ad_Repository {
 				case 'allow_php':
 				case 'has_weekdays':
 				case 'reserve_space':
-					$value = Formatting::bool_to_string( $value );
-					break;
 				case 'allow_shortcodes':
-					if ( $value ) {
-						$regex = get_shortcode_regex(
-							[
-								'the_ad',
-								'the_ad_group',
-								'the_ad_placement',
-							]
-						);
-						$value = preg_match( '/' . $regex . '/s', $ad->get_content() );
-					}
+					$value = Formatting::bool_to_string( $value );
 					break;
 				case 'description':
 					$value = esc_textarea( $value );
@@ -426,6 +417,17 @@ class Ad_Repository {
 		unset( $meta_values['has_weekdays'] );
 
 		update_post_meta( $ad->get_id(), self::OPTION_METAKEY, $meta_values );
+	}
+
+	/**
+	 * Update ad groups.
+	 *
+	 * @param Ad $ad Ad object.
+	 *
+	 * @return void
+	 */
+	private function update_post_term( &$ad ): void {
+		( new Ad_Group_Relation() )->relate( $ad );
 	}
 
 	/**

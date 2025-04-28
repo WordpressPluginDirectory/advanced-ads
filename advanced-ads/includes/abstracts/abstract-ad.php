@@ -9,10 +9,9 @@
 
 namespace AdvancedAds\Abstracts;
 
-use DateTimeZone;
 use Advanced_Ads;
-use Advanced_Ads_Utils;
 use Advanced_Ads_Inline_Css;
+use Advanced_Ads_Utils;
 use Advanced_Ads_Visitor_Conditions;
 use AdvancedAds\Traits;
 use AdvancedAds\Constants;
@@ -787,10 +786,10 @@ abstract class Ad extends Data {
 	 * @return array
 	 */
 	public function get_ad_schedule_details(): array {
-		$expiry_date_format = get_option( 'date_format' ) . ', ' . get_option( 'time_format' );
 		$status_strings     = [];
-		$post_start         = get_post_time( 'U', true, $this->get_id() );
 		$html_classes       = 'advads-filter-timing';
+		$post_start         = get_post_time( 'U', true, $this->get_id() );
+		$expiry_date_format = get_option( 'date_format' ) . ', ' . get_option( 'time_format' );
 
 		$status_type = get_post_status( $this->get_id() ) ?? 'published';
 		if ( 'publish' === $status_type ) {
@@ -808,7 +807,7 @@ abstract class Ad extends Data {
 		if ( $this->get_expiry_date() ) {
 			$expiry      = $this->get_expiry_date();
 			$expiry_date = date_create( '@' . $expiry );
-			$expiry_date->setTimezone( WordPress::get_timezone() );
+			$expiry_date->setTimezone( new \DateTimeZone( 'UTC' ) );
 			$html_classes .= ' advads-filter-any-exp-date';
 
 			$tz = ' ( ' . WordPress::get_timezone_name() . ' )';
@@ -847,11 +846,11 @@ abstract class Ad extends Data {
 	 * @return string
 	 */
 	public function get_ad_schedule_html(): string {
-		list(
+		[
 			'post_start' => $post_start,
 			'status_type' => $status_type,
 			'status_strings' => $status_strings
-		) = $this->get_ad_schedule_details();
+		] = $this->get_ad_schedule_details();
 
 		if ( empty( $status_strings ) ) {
 			return '';
@@ -898,8 +897,9 @@ abstract class Ad extends Data {
 			return 0;
 		}
 
-		$expiration_date->setTimezone( new DateTimeZone( 'UTC' ) );
-		$gm_date                                = $expiration_date->format( 'Y-m-d-H-i' );
+		$expiration_date->setTimezone( new \DateTimeZone( 'UTC' ) );
+		$gm_date = $expiration_date->format( 'Y-m-d-H-i' );
+
 		[ $year, $month, $day, $hour, $minute ] = explode( '-', $gm_date );
 
 		return gmmktime( $hour, $minute, 0, $month, $day, $year );
@@ -917,7 +917,7 @@ abstract class Ad extends Data {
 		$ad_args['shortcode_ad_id'] = $this->get_id();
 		$output                     = preg_replace(
 			'/\[(the_ad_group|the_ad_placement|the_ad) /',
-			'[$1 ad_args="' . rawurlencode( wp_json_encode( $ad_args ) ) . '"',
+			'[$1 ad_args="' . rawurlencode( wp_json_encode( $ad_args ) ) . '" ',
 			$output
 		);
 
@@ -1019,7 +1019,7 @@ abstract class Ad extends Data {
 					$this->wrapper['class'] = $classes;
 				}
 
-				if ( $this->is_parent_placement() && ! empty( $this->get_parent()->get_prop( 'placement_position' ) ) ) {
+				if ( $this->is_parent_placement() && 'default' !== $this->get_parent()->get_prop( 'placement_position' ) ) {
 					$use_position = true;
 					$position     = $this->get_parent()->get_prop( 'placement_position' );
 				}
@@ -1173,7 +1173,7 @@ abstract class Ad extends Data {
 				$wrapper['style']['margin-left']  = 'auto';
 				$wrapper['style']['margin-right'] = 'auto';
 
-				if ( empty( $this->get_width() ) || $use_position ) {
+				if ( empty( $this->get_width() ) || empty( $this->get_prop( 'add_wrapper_sizes' ) ) || $use_position ) {
 					$wrapper['style']['text-align'] = 'center';
 				}
 				break;

@@ -238,6 +238,7 @@ select + .advads-conditions-single { display: inline-flex; flex-wrap: wrap; alig
 .post-type-advanced_ads #advanced-ad-output-position img { border: 1px solid #ddd; padding: 2px; }
 .post-type-advanced_ads #advanced-ad-output-margin input[type="number"] { width: 4.5em; }
 .post-type-advanced_ads #advanced-ad-output-margin label + label { margin-left: 1em; }
+#advanced-ads-ad-parameters { overflow: visible; }
 
 @media screen and (max-width: 782px) {
 	.advads-conditions-table .advads-conditions-single.advads-buttonset label {
@@ -334,7 +335,6 @@ body.rtl .aa-select-list .aa-select-list-update { left: 47px; right: auto;}
 /**
  * AD GROUP LIST
  */
-.advanced-ads_page_advanced-ads-groups #wpbody-content > .wrap { margin-top: 20px; }
 .advanced-ads_page_advanced-ads-groups .tablenav.top { margin: 0px; padding-top: 0px; }
 #advads-ad-group-list ul, #advads-ad-group-list ol { margin: 0; list-style-position: inside; }
 #advads-ad-group-list .advads-group-ads tr:nth-child(odd) { background: #f9f9f9; }

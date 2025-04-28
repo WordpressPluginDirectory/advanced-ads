@@ -56,7 +56,7 @@ class Misc implements Integration_Interface {
 				. '&nbsp;<a href="https://wpadvancedads.com/manual/user-capabilities/?utm_source=advanced-ads&utm_medium=link&utm_campaign=wrong-user-role#You_dont_have_access_to_ads" target="_blank">' . __( 'Get help', 'advanced-ads' ) . '</a>';
 		}
 
-		return $translated_text;
+		return (string) $translated_text;
 	}
 
 	/**
@@ -118,11 +118,16 @@ class Misc implements Integration_Interface {
 			add_action( 'advanced-ads-admin-notices', [ $this, 'starter_setup_success_message' ] );
 		}
 
-		// Register our own notices on Advanced Ads pages, except from the overview page where they should appear in the notices section.
+		/*
+		Register our own notices on Advanced Ads pages, except
+		-> the overview page where they should appear in the notices section,
+		-> revision page to prevent duplicate revision controls.
+		*/
 		$screen = get_current_screen();
 		if (
 			Conditional::user_can( 'advanced_ads_edit_ads' )
 			&& ( ! isset( $screen->id ) || 'toplevel_page_advanced-ads' !== $screen->id )
+			&& 'revision' !== $screen->id
 		) {
 
 			echo '<div class="wrap">';
